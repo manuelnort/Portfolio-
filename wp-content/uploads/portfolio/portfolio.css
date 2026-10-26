@@ -1052,23 +1052,6 @@ body .elementor-element-703b983 { position: relative; z-index: 3; }
     -webkit-backdrop-filter: blur(14px) saturate(170%); backdrop-filter: blur(14px) saturate(170%);
     -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent); mask-image: linear-gradient(180deg, #000 60%, transparent);
   }
-  /* menu button: a 44pt glass circle with three clear lines */
-  body #pxl-header-mobile .pxl-nav-mobile-button {
-    position: relative; width: 44px !important; height: 44px !important; border-radius: 50%;
-    background: linear-gradient(160deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .05) 60%);
-    border: 1px solid rgba(255, 255, 255, .28);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -1px 0 rgba(0, 0, 0, .2), 0 10px 24px -10px rgba(0, 0, 0, .7);
-    -webkit-backdrop-filter: blur(16px) saturate(180%); backdrop-filter: blur(16px) saturate(180%);
-  }
-  body #pxl-header-mobile .pxl-nav-mobile-button .pxl-icon-line {
-    left: 50% !important; width: 20px !important; height: 2px !important; margin: 0 0 0 -10px !important;
-    border-radius: 2px; background-color: #fff !important; transform: none !important;
-  }
-  body #pxl-header-mobile .pxl-nav-mobile-button .pxl-icon-line1 { top: 15px !important; }
-  body #pxl-header-mobile .pxl-nav-mobile-button .pxl-icon-line2 { top: 21px !important; width: 14px !important; margin-left: -4px !important; }
-  body #pxl-header-mobile .pxl-nav-mobile-button::after {   /* third line */
-    content: ""; position: absolute; left: 50%; top: 27px; width: 20px; height: 2px; margin-left: -10px; border-radius: 2px; background: #fff;
-  }
   /* the slide-out menu: solid, with the site's own type */
   body .pxl-header-menu {
     background: radial-gradient(80% 50% at 90% 0%, rgba(248, 112, 96, .18), transparent 70%), #0b0c10 !important;
@@ -1084,12 +1067,14 @@ body .elementor-element-703b983 { position: relative; z-index: 3; }
   }
   body .pxl-header-menu .current-menu-item > a,
   body .pxl-header-menu .menu-item > a:hover { color: var(--dn-accent) !important; }
-  body .pxl-header-menu .pxl-menu-close {
-    top: 20px !important; right: 16px !important; width: 44px !important; height: 44px !important; border-radius: 50%;
-    background: rgba(255, 255, 255, .1) !important; border: 1px solid rgba(255, 255, 255, .22);
+  body .pxl-header-menu .pxl-menu-close {   /* same shape as the menu button: 44pt, 12px corners, top right */
+    position: absolute !important; display: block !important; left: auto !important; margin: 0 !important;
+    top: 18px !important; right: 16px !important; width: 44px !important; height: 44px !important; padding: 0 !important; border-radius: 12px !important;
+    background: rgba(255, 255, 255, .08) !important; border: 1px solid rgba(255, 255, 255, .22); cursor: pointer;
   }
+  body .pxl-header-menu .pxl-menu-close:focus-visible { outline: 2px solid var(--dn-accent); outline-offset: 3px; }
   body .pxl-header-menu .pxl-menu-close::before,
-  body .pxl-header-menu .pxl-menu-close::after { background-color: #fff !important; width: 20px !important; }
+  body .pxl-header-menu .pxl-menu-close::after { background-color: #fff !important; width: 20px !important; left: 11px !important; top: 50% !important; margin-top: -1px !important; }
 }
 /* Photoshop's tile is dark navy; a hairline keeps its edge visible on the dark chips */
 .dn-tools__chip img[src$="photoshop.svg"], .dn-offer__logos img[src$="photoshop.svg"] { border-radius: 6px; box-shadow: 0 0 0 1px rgba(49, 168, 255, .45); }
@@ -1199,7 +1184,43 @@ body .elementor-element-703b983 { position: relative; z-index: 3; }
 
 /* Reduce Transparency: the glass controls turn solid */
 @media (prefers-reduced-transparency: reduce) {
-  .dn-dock, body #pxl-header-mobile .pxl-nav-mobile-button, body #pxl-header-mobile::before, .dn-pill, .dn-chapter__tag {
+  .dn-dock, body #pxl-header-mobile::before, .dn-pill, .dn-chapter__tag {
     background: #16171c !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
   }
 }
+
+/* ---------- Phone menu button: built like the site's buttons (label plus icon box, 12px corners) ---------- */
+.dn-menu-slot { display: none; }
+@media (max-width: 1200px) {
+  .dn-menu-slot { display: flex; position: absolute; top: 50%; right: 16px; transform: translateY(-50%); }
+}
+/* the theme styles every <button> (pill shape, padding, height, fills, ::before/::after); these reset all of it */
+body .dn-menu-slot button.dn-menu-btn,
+body .pxl-header-menu button.pxl-menu-close {
+  width: auto; height: auto; min-width: 0; max-width: none; line-height: 1; text-indent: 0; overflow: visible; outline-offset: 3px;
+}
+body .dn-menu-slot button.dn-menu-btn::before, body .dn-menu-slot button.dn-menu-btn::after { content: none !important; display: none !important; }
+body .dn-menu-slot button.dn-menu-btn {
+  display: inline-flex !important; align-items: center; gap: 10px; height: 44px !important; min-height: 44px !important; margin: 0 !important; padding: 0 5px 0 16px !important;
+  border-radius: 12px !important; border: 1px solid rgba(255, 255, 255, .22) !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12) !important;
+  background: rgba(10, 11, 14, .35) !important; color: #fff !important; font: 600 15px/1 "Roboto Flex", sans-serif !important;
+}
+body .dn-menu-slot button.dn-menu-btn:hover, body .dn-menu-slot button.dn-menu-btn:active { border-color: #fff !important; background: rgba(255, 255, 255, .08) !important; }
+.dn-menu-btn {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin: 0; padding: 5px 5px 5px 16px;
+  border: 1px solid rgba(255, 255, 255, .22); border-radius: 12px; cursor: pointer;
+  background: rgba(10, 11, 14, .35); color: #fff; font: 600 15px/1 "Roboto Flex", sans-serif; letter-spacing: 0; text-transform: none;
+  -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12);
+  transition: border-color .25s ease, background-color .25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.dn-menu-btn:hover, .dn-menu-btn:active { border-color: #fff; background: rgba(255, 255, 255, .08); }
+.dn-menu-btn:focus-visible { outline: 2px solid var(--dn-accent); outline-offset: 3px; }
+.dn-menu-btn__icon {
+  display: grid; align-content: center; justify-items: center; gap: 4px; width: 34px; height: 34px; border-radius: 9px;
+  background: rgba(255, 255, 255, .12);
+}
+.dn-menu-btn__icon i { display: block; width: 16px; height: 2px; border-radius: 2px; background: #fff; }
+html.dn-menu-open, html.dn-menu-open body { overflow: hidden !important; }   /* the page stays put while the menu is open */
+@media (prefers-reduced-transparency: reduce) { .dn-menu-btn { background: #16171c; -webkit-backdrop-filter: none; backdrop-filter: none; } }

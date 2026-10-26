@@ -504,7 +504,69 @@
     update();
   }
 
+  // Phone menu. One place opens and closes it: the Menu button toggles it; the close button, the backdrop and
+  // Escape close it. The page lock is set and cleared (never flipped), so it can't get stuck. The theme's own
+  // handlers on the close button and backdrop flip that lock, so their clicks are taken here first and stop.
+  function phoneMenu() {
+    var toggle = document.querySelector(".dn-menu-btn");
+    var menu = document.getElementById("dn-mobile-menu");
+    if (!toggle || !menu) return;
+    var root = document.documentElement;
+    function isOpen() { return menu.classList.contains("active"); }
+    function focusables() {
+      return Array.prototype.filter.call(menu.querySelectorAll("a[href], button"), function (el) { return el.offsetParent !== null; });
+    }
+    function open() {
+      menu.classList.add("active");
+      root.classList.add("dn-menu-open");
+      document.body.classList.add("body-overflow");
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.setAttribute("aria-label", "Close menu");
+      var first = menu.querySelector(".pxl-menu-close");
+      if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 50);
+    }
+    function close(returnFocus) {
+      menu.classList.remove("active");
+      root.classList.remove("dn-menu-open");
+      document.body.classList.remove("body-overflow");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Open menu");
+      if (returnFocus) toggle.focus({ preventScroll: true });
+    }
+    document.addEventListener("click", function (e) {
+      var t = e.target;
+      if (!t || !t.closest) return;
+      if (t.closest(".dn-menu-btn")) {
+        e.preventDefault(); e.stopPropagation();
+        if (isOpen()) close(true); else open();
+        return;
+      }
+      if (t.closest("#dn-mobile-menu .pxl-menu-close") || t.closest(".pxl-header-menu-backdrop")) {
+        e.preventDefault(); e.stopPropagation();
+        close(true);
+        return;
+      }
+      if (isOpen() && t.closest("#dn-mobile-menu a[href]")) close(false);   // a link: let it go, menu shut behind it
+    }, true);
+    document.addEventListener("keydown", function (e) {
+      if (!isOpen()) return;
+      if (e.key === "Escape") { e.preventDefault(); close(true); return; }
+      if (e.key === "Tab") {   // keep keyboard focus inside the open menu
+        var items = focusables();
+        if (!items.length) return;
+        var first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    // Coming back with the browser's Back button can restore the page with the menu still open
+    window.addEventListener("pageshow", function () { if (isOpen()) close(false); });
+    // Turning a tablet or widening the window past the phone layout closes it too
+    window.addEventListener("resize", function () { if (isOpen() && window.innerWidth > 1200) close(false); });
+  }
+
   siteGrid();
+  phoneMenu();
   floatingMenu();
   countUp();
   stepsInView();

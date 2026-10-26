@@ -228,6 +228,17 @@ def global_edits(p):
     # Last of all, the theme's footer gives way to one that closes the story (see footer_section)
     s, e = p.element_span("ffd882a")
     p.h = p.h[:s] + footer_section(p.name) + p.h[e:]
+    # Phone menu button: a real button styled like the site's buttons, under its own id so the theme's
+    # click code (bound to #pxl-nav-mobile) no longer runs; portfolio.js opens and closes the menu
+    assert p.h.count('<div id="pxl-nav-mobile">') == 1
+    s, e = p.balanced(p.h.index('<div id="pxl-nav-mobile">'))
+    p.h = p.h[:s] + ('<div class="dn-menu-slot"><button type="button" class="dn-menu-btn" aria-controls="dn-mobile-menu" '
+                     'aria-expanded="false" aria-label="Open menu"><span class="dn-menu-btn__label" aria-hidden="true">Menu</span>'
+                     '<span class="dn-menu-btn__icon" aria-hidden="true"><i></i><i></i><i></i></span></button></div>') + p.h[e:]
+    p.sub('<div class="pxl-header-menu">', '<div class="pxl-header-menu" id="dn-mobile-menu" role="dialog" aria-label="Menu">', 1)
+    p.sub('<div class="pxl-menu-close pxl-hide-xl pxl-close"></div>',
+          '<button type="button" class="pxl-menu-close pxl-hide-xl pxl-close" aria-label="Close menu"></button>', 1)
+
     # Phone menu: under the links, the two things people come for and a way to write
     start = p.h.index('<div class="pxl-header-menu-scroll">')
     s, e = p.balanced(start)
