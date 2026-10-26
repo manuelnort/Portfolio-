@@ -209,7 +209,7 @@ def global_edits(p):
 
     p.sub("Do you want to start your project now?", "Got a project in mind?", None)
 
-    # Contact Form 7: no page uses its form now (both contact forms open the visitor's email app), so its
+    # Contact Form 7: no page uses its form now (both contact forms post to FormSubmit instead), so its
     # scripts and styles go; left in, they ask a WordPress server that isn't there for a form schema
     p.resub(r'<script id="swv-js" src="[^"]*"></script>\s*', "", None)
     p.resub(r'<script id="contact-form-7-js-before">.*?</script>\s*', "", None)
@@ -238,6 +238,19 @@ def global_edits(p):
     p.sub('<div class="pxl-header-menu">', '<div class="pxl-header-menu" id="dn-mobile-menu" role="dialog" aria-label="Menu">', 1)
     p.sub('<div class="pxl-menu-close pxl-hide-xl pxl-close"></div>',
           '<button type="button" class="pxl-menu-close pxl-hide-xl pxl-close" aria-label="Close menu"></button>', 1)
+
+    # Desktop menu button: the same "Menu" button as on phones, in place of the theme's anchor button (whose
+    # script left the page locked when the panel was closed with the button); portfolio.js opens the side panel
+    # (twice: the header and its sticky copy that appears on scroll)
+    anchor = '<div class="pxl-anchor-button pxl-cursor--cta type-default style-1  " data-target=".pxl-hidden-template-1423"'
+    assert p.h.count(anchor) == 2, p.h.count(anchor)
+    while anchor in p.h:
+        s, e = p.balanced(p.h.index(anchor))
+        p.h = p.h[:s] + ('<button type="button" class="dn-menu-btn dn-menu-btn--desk" aria-controls="dn-side-panel" aria-expanded="false" '
+                         'aria-label="Open menu"><span class="dn-menu-btn__label" aria-hidden="true">Menu</span>'
+                         '<span class="dn-menu-btn__icon" aria-hidden="true"><i></i><i></i><i></i></span></button>') + p.h[e:]
+    p.sub('<div class="pxl-hidden-panel-popup pxl-hidden-template-1423 pxl-pos-top">',
+          '<div class="pxl-hidden-panel-popup pxl-hidden-template-1423 pxl-pos-top" id="dn-side-panel" role="dialog" aria-label="Menu">', 1)
 
     # Phone menu: under the links, the two things people come for and a way to write
     start = p.h.index('<div class="pxl-header-menu-scroll">')
@@ -514,7 +527,7 @@ TESTIMONIALS = [
     ("proj-strategicagile-card.jpg", "Strategic &amp; Agile", "Human capital consultancy",
      "We needed a site that looked as serious as our work. Emmanuel got what we do after one conversation, "
      "and now my team updates the site without calling anyone."),
-    ("proj-mawuena-card.jpg", "Mawuena Datsa Foundation", "Education and health nonprofit, Ghana",
+    ("testi-mawuena-founder.jpg", "Mawuena Datsa", "Founder, Mawuena Datsa Foundation",
      "People used to message us asking how to donate, and now we just send them the link. "
      "Emmanuel was patient with us and never made us feel silly for asking basic questions."),
     ("proj-wmt-card.jpg", "World Movers Team", "Youth NGO for health equity",
@@ -522,7 +535,7 @@ TESTIMONIALS = [
      "Now it’s one site, and our volunteers can actually find things."),
 ]
 VOICES = [
-    ("proj-agorivia-card.jpg", "50% 45%", "Agorivia", "Operations support, United Kingdom",
+    ("voice-agorivia-founder.jpg", "50% 50%", "Agorivia", "Founder, operations support in the UK",
      "Seeing the whole design in Figma before anything was built saved us so much going back and forth. It went live the week he said it would."),
     ("proj-feci-card.jpg", "30% 35%", "Faith Empowered Chapel Intl.", "Church",
      "Our members can now give online and catch up on services they missed, even the ones who insist they’re not into tech."),
@@ -683,7 +696,8 @@ BUDGETS = ["Under $500", "$500 to $1,500", "$1,500 to $5,000", "Over $5,000", "N
 
 def contact_section(page=False):
     """Malan-style contact: heading and direct details on the left, the enquiry form in a card on the right,
-    over a map of the world. The form opens the visitor's email app with the message filled in (portfolio.js).
+    over a map of the world. The form posts to FormSubmit, which emails it to EMAIL; if that fails it opens the
+    visitor's email app with the message filled in instead (portfolio.js).
     On the contact page the page header above already says what this is, so the intro keeps only the details."""
     options = lambda items: "".join("<option>%s</option>" % o for o in items)
     intro = "" if page else (chapter(6, "Your turn", "Let’s build yours",
@@ -703,6 +717,7 @@ def contact_section(page=False):
       </ul>
     </div>
     <form class="dn-form" data-email="%(email)s" novalidate>
+      <input class="dn-form__trap" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="dn-form__row">
         <label class="dn-field"><span>Name</span><input name="name" type="text" autocomplete="name" placeholder="Ama Mensah" required></label>
         <label class="dn-field"><span>Email</span><input name="email" type="email" autocomplete="email" placeholder="ama@example.com" required></label>
@@ -713,7 +728,7 @@ def contact_section(page=False):
       </div>
       <label class="dn-field"><span>Message</span><textarea name="message" rows="5" placeholder="Tell me about your project" required></textarea></label>
       <button class="dn-form__submit" type="submit">Send message</button>
-      <p class="dn-form__note" role="status">Opens your email app with your message ready to send.</p>
+      <p class="dn-form__note" role="status">I usually reply within a day.</p>
     </form>
   </div>
 </section>
@@ -962,7 +977,7 @@ def contact():
     p.sub("<title>Contact &#8211; Diginort</title>", "<title>Contact | Emmanuel Nortey</title>")
     s, e = p.element_span("daead26")
     p.h = p.h[:s] + pagehead("Contact", "Tell me about your project",
-                             "Fill in the form and your email app opens with the message ready to send. "
+                             "Fill in the form and it comes straight to my inbox. "
                              "Prefer WhatsApp? That works too.") + contact_section(page=True) + p.h[e:]
     p.save()
 

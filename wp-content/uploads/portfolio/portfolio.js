@@ -312,7 +312,7 @@
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var firstBad = null;
-      Array.prototype.forEach.call(form.querySelectorAll("input, select, textarea"), function (field) {
+      Array.prototype.forEach.call(form.querySelectorAll(".dn-field input, .dn-field select, .dn-field textarea"), function (field) {
         var bad = !field.checkValidity();
         field.closest(".dn-field").classList.toggle("is-invalid", bad);
         if (bad && !firstBad) firstBad = field;
@@ -324,14 +324,37 @@
         return;
       }
       note.textContent = defaultNote;
-      note.classList.remove("is-error");
+      note.classList.remove("is-error", "is-sent");
       var v = function (name) { return form.elements[name].value.trim(); };
-      var body = "Name: " + v("name") + "\nEmail: " + v("email") + "\nService: " + v("service") +
-        "\nBudget: " + (v("budget") || "Not given") + "\n\n" + v("message");
-      window.location.href = "mailto:" + form.getAttribute("data-email") +
-        "?subject=" + encodeURIComponent("New project: " + v("service") + " for " + v("name")) +
-        "&body=" + encodeURIComponent(body);
+      var email = form.getAttribute("data-email"), subject = "New project: " + v("service") + " for " + v("name");
+      var button = form.querySelector(".dn-form__submit"), label = button.textContent;
+      // If the relay can't take it, the visitor's email app opens with the same message so nothing is lost
+      function fallback() {
+        var body = "Name: " + v("name") + "\nEmail: " + v("email") + "\nService: " + v("service") +
+          "\nBudget: " + (v("budget") || "Not given") + "\n\n" + v("message");
+        note.textContent = "That didn't go through, so your email app is opening with the message instead.";
+        window.location.href = "mailto:" + email + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+      }
+      button.disabled = true;
+      button.textContent = "Sending";
+      fetch("https://formsubmit.co/ajax/" + email, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          name: v("name"), email: v("email"), service: v("service"), budget: v("budget") || "Not given",
+          message: v("message"), _subject: subject, _template: "table", _honey: v("_honey")
+        })
+      }).then(function (r) { return r.json(); }).then(function (data) {
+        if (String(data.success) !== "true") throw new Error(data.message);
+        form.reset();
+        note.textContent = "Thanks, your message is in my inbox. I'll get back to you soon.";
+        note.classList.add("is-sent");
+      }).catch(fallback).then(function () {
+        button.disabled = false;
+        button.textContent = label;
+      });
     });
+
     form.addEventListener("input", function (e) {
       var field = e.target.closest(".dn-field");
       if (field && e.target.checkValidity()) field.classList.remove("is-invalid");
@@ -508,7 +531,8 @@
   // Escape close it. The page lock is set and cleared (never flipped), so it can't get stuck. The theme's own
   // handlers on the close button and backdrop flip that lock, so their clicks are taken here first and stop.
   function phoneMenu() {
-    var toggle = document.querySelector(".dn-menu-btn");
+    var PHONE = ".dn-menu-btn:not(.dn-menu-btn--desk)";   // the desktop header has its own (sidePanel)
+    var toggle = document.querySelector(PHONE);
     var menu = document.getElementById("dn-mobile-menu");
     if (!toggle || !menu) return;
     var root = document.documentElement;
@@ -536,7 +560,7 @@
     document.addEventListener("click", function (e) {
       var t = e.target;
       if (!t || !t.closest) return;
-      if (t.closest(".dn-menu-btn")) {
+      if (t.closest(PHONE)) {
         e.preventDefault(); e.stopPropagation();
         if (isOpen()) close(true); else open();
         return;
@@ -565,8 +589,83 @@
     window.addEventListener("resize", function () { if (isOpen() && window.innerWidth > 1200) close(false); });
   }
 
+  // Works filter: the tapped filter slides to the middle of its one-line track (it scrolls sideways on phones)
+  function filterTrack() {
+    var track = document.querySelector(".dn-filter .pxl--filter-inner");
+    if (!track) return;
+    track.addEventListener("click", function (e) {
+      var item = e.target.closest && e.target.closest(".filter-item");
+      if (!item || track.scrollWidth <= track.clientWidth) return;
+      var target = item.offsetLeft - (track.clientWidth - item.offsetWidth) / 2;
+      track.scrollTo({ left: Math.max(0, target), behavior: reduceMotion ? "auto" : "smooth" });
+    });
+  }
+
+  // Desktop menu: the header's Menu button opens the theme's side panel (it slides down from the top).
+  // Closing: the button again (it reads Close), the dark overlay, or Escape. The theme's own panel code is left
+  // out of it: it never reset its button and could leave the page locked.
+  function sidePanel() {
+    var toggles = document.querySelectorAll(".dn-menu-btn--desk");   // the header's and its sticky copy's
+    var panel = document.getElementById("dn-side-panel");
+    if (!toggles.length || !panel) return;
+    var lastToggle = toggles[0];
+    function setToggles(expanded) {
+      Array.prototype.forEach.call(toggles, function (t) {
+        t.setAttribute("aria-expanded", expanded ? "true" : "false");
+        t.setAttribute("aria-label", expanded ? "Close menu" : "Open menu");
+        t.querySelector(".dn-menu-btn__label").textContent = expanded ? "Close" : "Menu";
+      });
+    }
+    function isOpen() { return panel.classList.contains("active"); }
+    function animate(opening) {
+      Array.prototype.forEach.call(panel.querySelectorAll(".pxl-popup--conent .wow"), function (el) {
+        el.classList.toggle("animated", opening);
+        el.classList.toggle("aniOut", !opening);
+      });
+    }
+    function open() {
+      panel.classList.add("active");
+      document.body.classList.add("body-overflow");
+      animate(true);
+      setToggles(true);
+      var first = panel.querySelector(".pxl-popup--conent a[href]");
+      if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 350);
+    }
+    function close(returnFocus) {
+      panel.classList.remove("active");
+      document.body.classList.remove("body-overflow");
+      animate(false);
+      setToggles(false);
+      if (returnFocus) lastToggle.focus({ preventScroll: true });
+    }
+    document.addEventListener("click", function (e) {
+      var t = e.target;
+      if (!t || !t.closest) return;
+      if (t.closest(".dn-menu-btn--desk")) {
+        e.preventDefault(); e.stopPropagation();
+        lastToggle = t.closest(".dn-menu-btn--desk");
+        if (isOpen()) close(true); else open();
+        return;
+      }
+      if (isOpen() && t.closest("#dn-side-panel .pxl-popup--overlay")) {
+        e.preventDefault(); e.stopPropagation();
+        close(true);
+        return;
+      }
+      if (isOpen() && t.closest("#dn-side-panel a[href]")) close(false);   // a link: let it go, panel shut behind it
+    }, true);
+    document.addEventListener("keydown", function (e) {
+      if (isOpen() && e.key === "Escape") { e.preventDefault(); close(true); }
+    });
+    window.addEventListener("pageshow", function () { if (isOpen()) close(false); });
+    // Narrowing the window to the phone layout (where this header hides) closes it too
+    window.addEventListener("resize", function () { if (isOpen() && window.innerWidth <= 1200) close(false); });
+  }
+
   siteGrid();
   phoneMenu();
+  sidePanel();
+  filterTrack();
   floatingMenu();
   countUp();
   stepsInView();
