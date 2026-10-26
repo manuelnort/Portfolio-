@@ -150,7 +150,7 @@ def global_edits(p):
     for href in ("works-2.html", "works-3.html", "https://evne.bravisthemes.com/portfolio/typeface-texture/"):
         p.resub(r'<li (?:id="menu-item-\d+" )?class="menu-item[^"]*"><a href="%s"><span[^>]*>.*?</span></a></li>\s*' % re.escape(href), "", None)
     p.resub(r"(<span(?: class=\"pxl-menu-item-text\")?>)Home 1", r"\1Home", None)
-    p.resub(r"(<span(?: class=\"pxl-menu-item-text\")?>)Works 1", r"\1Works", None)
+    p.resub(r"(<span(?: class=\"pxl-menu-item-text\")?>)Works 1", r"\1Work", None)   # "Work", as in the floating menu
 
     # Side panel: contact details and links
     p.sub("mailto:hello@evne.agency", "mailto:" + EMAIL, None)
@@ -228,6 +228,13 @@ def global_edits(p):
     # Last of all, the theme's footer gives way to one that closes the story (see footer_section)
     s, e = p.element_span("ffd882a")
     p.h = p.h[:s] + footer_section(p.name) + p.h[e:]
+    # Phone menu: under the links, the two things people come for and a way to write
+    start = p.h.index('<div class="pxl-header-menu-scroll">')
+    s, e = p.balanced(start)
+    close = p.h.rindex("</div>", s, e)
+    p.h = p.h[:close] + ('<div class="dn-menu-extra"><a class="dn-btn dn-btn--light" href="contact.html">Start a project'
+                         '<span class="dn-btn__icon" aria-hidden="true">&#8594;</span></a>%s'
+                         '<a class="dn-menu-extra__mail" href="mailto:%s">%s</a></div>' % (cv_button(), EMAIL, EMAIL)) + p.h[close:]
     # the menu goes in before the portfolio script, which looks for it when it runs
     p.sub('<script src="%sportfolio.js' % IMG_URL, dock(p.name) + '<script src="%sportfolio.js' % IMG_URL, 1)
 
