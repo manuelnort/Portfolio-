@@ -822,13 +822,13 @@ body .elementor-element-ace0414 { margin-top: 0 !important; }
 @media (max-width: 900px) { .dn-testi .dn-testi__thumbs button.dn-testi__thumb { width: 48px; height: 48px; } }
 
 /* ---------- The hero's box grid, carried across every page ----------
-   One fixed layer above the content (below the header and menus). portfolio.js shifts it with the scroll so the
-   boxes travel with the page. The difference blend turns the same faint white lines grey on white sections. */
-.dn-grid { position: fixed; inset: 0; z-index: 9; pointer-events: none; overflow: hidden; mix-blend-mode: difference; }
+   One fixed layer just above the backdrop and behind all the content, so its lines never run through text.
+   portfolio.js shifts it with the scroll so the boxes travel with the page, and fades it further past the hero. */
+.dn-grid { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
 .dn-grid i {
   position: absolute; left: 0; right: 0; top: -64px; height: calc(100% + 128px);
-  background-image: linear-gradient(rgba(255, 255, 255, .07) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255, 255, 255, .07) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px);
   background-size: 64px 64px; background-position: center top;
   transform: translate3d(0, var(--dn-grid-y, 0px), 0); will-change: transform;
 }
@@ -1280,3 +1280,122 @@ html.dn-menu-open, html.dn-menu-open body { overflow: hidden !important; }   /* 
 @media (prefers-reduced-motion: reduce) { .dn-menu-btn__icon i { transition: none; } }
 /* desktop: the button stays above the side panel so it can close it */
 body .elementor-element-da8b692 { position: relative; z-index: 100000; }
+
+/* =====================================================================================================
+   Motion layer: the preloader, the crossing marquee under the hero, headings that rise word by word, and a
+   reading line along the top. portfolio.js drives all of it with the theme's GSAP; Reduce Motion gets fades.
+   ===================================================================================================== */
+
+/* ---------- Preloader ----------
+   Columns cover the page; the dial, counter and status sit on top of them. If portfolio.js never takes over
+   (it adds .is-live), the failsafe animation fades everything out after six seconds. */
+.dn-loader { position: fixed; inset: 0; z-index: 1000001; animation: dn-loader-failsafe .5s ease 6s forwards; }
+.dn-loader.is-live { animation: none; }
+@keyframes dn-loader-failsafe { to { opacity: 0; visibility: hidden; } }
+.dn-loader__cols { position: absolute; inset: 0; display: flex; }
+.dn-loader__cols i { flex: 1 1 0; height: 100%; margin-right: -1px; background: var(--dn-bg); box-shadow: inset 0 -1px 0 rgba(248, 112, 96, .55); }
+.dn-loader__cols i:last-child { margin-right: 0; }
+.dn-loader__ui {
+  position: absolute; inset: 0; overflow: hidden; display: grid; grid-template-rows: auto 1fr auto; gap: 24px;
+  padding: 30px 40px 26px; color: #fff; font-family: "Roboto Flex", sans-serif;
+  background: radial-gradient(circle at 50% 46%, rgba(248, 112, 96, .2), rgba(248, 112, 96, .05) 30%, transparent 58%),
+              radial-gradient(circle at 12% 100%, rgba(0, 197, 254, .1), transparent 40%);
+}
+.dn-loader__ui::before {   /* the same box grid as the site, fading out towards the edges */
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
+  background-size: 64px 64px; background-position: center center;
+  -webkit-mask-image: radial-gradient(circle at 50% 46%, #000 20%, transparent 72%); mask-image: radial-gradient(circle at 50% 46%, #000 20%, transparent 72%);
+}
+.dn-loader__ui > * { position: relative; }
+html.dn-quick .dn-loader__ui, .dn-loader.is-leaving .dn-loader__ui { display: none; }
+.dn-loader__scan {
+  position: absolute !important; left: 0; right: 0; top: 0; height: 140px; pointer-events: none;
+  background: linear-gradient(rgba(248, 112, 96, 0), rgba(248, 112, 96, .07)); border-bottom: 1px solid rgba(248, 112, 96, .16);
+  transform: translate3d(0, -140px, 0); animation: dn-loader-scan 3.2s cubic-bezier(.45, 0, .55, 1) infinite;
+}
+@keyframes dn-loader-scan { to { transform: translate3d(0, 100vh, 0); } }
+.dn-loader__top, .dn-loader__meta { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.dn-loader__brand { font: 400 20px/1 "Glancyr Neue", sans-serif; letter-spacing: -.01em; }
+.dn-loader__brand b { color: var(--dn-accent); font-weight: inherit; }
+.dn-loader__clock, .dn-loader__meta, .dn-loader__status { font: 500 12px/1.4 "Roboto Flex", sans-serif; letter-spacing: .2em; text-transform: uppercase; color: rgba(255, 255, 255, .6); }
+.dn-loader__clock b { color: #fff; font-weight: 600; }
+.dn-loader__core { place-self: center; display: grid; justify-items: center; gap: 34px; }
+.dn-loader__dial { position: relative; width: min(300px, 66vw); aspect-ratio: 1; display: grid; place-items: center; }
+.dn-loader__dial svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.dn-loader__frame { position: absolute; inset: -30px; pointer-events: none; }
+.dn-loader__frame i { position: absolute; width: 16px; height: 16px; border: 0 solid rgba(248, 112, 96, .85); }
+.dn-loader__frame i:nth-child(1) { top: 0; left: 0; border-width: 1px 0 0 1px; }
+.dn-loader__frame i:nth-child(2) { top: 0; right: 0; border-width: 1px 1px 0 0; }
+.dn-loader__frame i:nth-child(3) { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
+.dn-loader__frame i:nth-child(4) { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+.dn-loader__ticks line { stroke: rgba(255, 255, 255, .2); stroke-width: 1; }
+.dn-loader__ticks line.is-major { stroke: rgba(255, 255, 255, .55); }
+.dn-loader__track { fill: none; stroke: rgba(255, 255, 255, .08); stroke-width: 1.5; }
+.dn-loader__ring { fill: none; stroke: url(#dn-loader-grad); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.dn-loader__inner { fill: none; stroke: rgba(255, 255, 255, .2); stroke-width: 1; stroke-dasharray: 1 5; }
+.dn-loader__arc { fill: none; stroke: #00c5fe; stroke-opacity: .7; stroke-width: 1; stroke-dasharray: 34 632; stroke-linecap: round; }
+.dn-loader__sat circle { fill: #ffd2cb; filter: drop-shadow(0 0 6px #f87060) drop-shadow(0 0 14px rgba(248, 112, 96, .8)); }
+.dn-loader__spin { transform-box: fill-box; transform-origin: 50% 50%; animation: dn-spin 16s linear infinite; }
+.dn-loader__spin--back { animation-duration: 7s; animation-direction: reverse; }
+@keyframes dn-spin { to { transform: rotate(360deg); } }
+.dn-loader__count { position: relative; display: flex; align-items: flex-start; font: 400 clamp(54px, 7vw, 92px)/1 "Glancyr Neue", sans-serif; letter-spacing: -.02em; }
+.dn-loader__count sup { top: 0; margin: .3em 0 0 .08em; font-size: .3em; line-height: 1; color: var(--dn-accent); }
+.dn-loader__digit { display: block; width: .68em; height: 1.3em; overflow: hidden; text-align: center; transition: color .4s ease; }
+.dn-loader__digit > span { display: flex; flex-direction: column; transition: transform .35s cubic-bezier(.2, .8, .2, 1); }
+.dn-loader__digit:nth-child(3) > span { transition: none; }   /* the ones change every frame: they snap, the others roll */
+.dn-loader__digit b { display: block; height: 1.3em; line-height: 1.3em; font-weight: inherit; }
+.dn-loader__digit.is-dim { color: rgba(255, 255, 255, .22); }
+.dn-loader__status { display: flex; align-items: center; gap: 12px; margin: 0; min-height: 17px; color: rgba(255, 255, 255, .78); }
+.dn-loader__status i { width: 6px; height: 6px; background: var(--dn-accent); box-shadow: 0 0 10px var(--dn-accent); animation: dn-blink 1s steps(2, start) infinite; }
+@keyframes dn-blink { to { visibility: hidden; } }
+.dn-loader__bottom { display: grid; gap: 14px; }
+.dn-loader__hint--tap { display: none; }
+@media (hover: none) { .dn-loader__hint--key { display: none; } .dn-loader__hint--tap { display: inline; } }
+.dn-loader__bar { position: relative; height: 1px; background: rgba(255, 255, 255, .14); }
+.dn-loader__bar i { position: absolute; inset: 0; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, rgba(248, 112, 96, .1), #f87060); }
+.dn-loader__bar b { position: absolute; top: -3px; left: 0; width: 7px; height: 7px; margin-left: -3.5px; border-radius: 50%; background: #ffd2cb; box-shadow: 0 0 10px #f87060, 0 0 22px rgba(248, 112, 96, .7); }
+.dn-loader__ticker { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+.dn-loader__belt { display: flex; align-items: center; gap: 22px; width: max-content; padding-right: 22px; animation: dn-loader-belt 26s linear infinite;
+  font: 500 11px/1 "Roboto Flex", sans-serif; letter-spacing: .26em; text-transform: uppercase; color: rgba(255, 255, 255, .4); }
+.dn-loader__belt i { width: 4px; height: 4px; border-radius: 50%; background: var(--dn-accent); flex: none; }
+@keyframes dn-loader-belt { to { transform: translate3d(-50%, 0, 0); } }
+@media (max-width: 767px) {
+  .dn-loader__ui { padding: 22px 16px 20px; }
+  .dn-loader__brand { font-size: 17px; }
+  .dn-loader__clock, .dn-loader__meta { font-size: 10px; letter-spacing: .16em; }
+  .dn-loader__frame { inset: -18px; }
+  .dn-loader__core { gap: 26px; }
+}
+
+/* ---------- Reading line along the top of the window ---------- */
+.dn-progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 100002; pointer-events: none;
+  transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, rgba(248, 112, 96, .15), #f87060 70%, #ffb4a8); }
+
+/* ---------- Crossing marquee under the hero ---------- */
+.dn-marquee { position: relative; display: grid; align-items: center; overflow: hidden; overflow: clip; padding: clamp(70px, 9vw, 130px) 0; }
+.dn-marquee__band { grid-area: 1 / 1; position: relative; width: 112vw; margin-left: -6vw; overflow: hidden; padding: .32em 0;
+  font: 400 clamp(32px, 4.6vw, 72px)/1 "Glancyr Neue", sans-serif; letter-spacing: -.02em; }
+.dn-marquee__band--line { transform: rotate(3deg); color: #fff; background: rgba(255, 255, 255, .035); border-block: 1px solid rgba(255, 255, 255, .12);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.dn-marquee__band--solid { z-index: 1; transform: rotate(-3deg); color: #0b0c0f; background: linear-gradient(90deg, #f87060, #ff9a8b 50%, #f87060);
+  box-shadow: 0 24px 70px rgba(248, 112, 96, .28); }
+.dn-marquee__track { display: flex; width: max-content; will-change: transform; }
+.dn-marquee__group { display: flex; align-items: center; gap: .42em; padding-right: .42em; flex: none; white-space: nowrap; }
+.dn-marquee__band--line .dn-marquee__group > span:nth-of-type(odd) { color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .8); }
+.dn-marquee__spark { width: .5em; height: .5em; flex: none; fill: currentColor; }
+.dn-marquee__band--line .dn-marquee__spark { fill: var(--dn-accent); }
+@media (max-width: 767px) {
+  .dn-marquee__band--line { transform: rotate(4deg); }
+  .dn-marquee__band--solid { transform: rotate(-4deg); }
+}
+@media (prefers-reduced-transparency: reduce) { .dn-marquee__band--line { background: #16171c; -webkit-backdrop-filter: none; backdrop-filter: none; } }
+
+/* ---------- Headings that rise word by word (portfolio.js wraps each word) ---------- */
+.dn-word { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .14em; margin-bottom: -.14em; }
+.dn-word__in { display: inline-block; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dn-loader__scan, .dn-loader__spin, .dn-loader__belt, .dn-loader__status i { animation: none; }
+  .dn-loader__digit > span { transition: none; }
+}

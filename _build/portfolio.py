@@ -145,6 +145,69 @@ def footer_section(page):
 """ % {"links": links, "email": EMAIL, "wa": WHATSAPP, "next": NEXT, "phone": PHONE, "words": words, "cv": cv_button()}
 
 
+LOADER_STEPS = ["Waking up the globe", "Plotting Accra to London", "Laying out the grid", "Nearly there", "Welcome in"]
+LOADER_WORDS = ["WordPress", "WooCommerce", "Figma", "Elementor", "Next.js", "JavaScript", "Accra", "London"]
+
+
+def loader_section():
+    """The preloader every page opens with (portfolio.js runs it). On the first page of a visit: a dial and a
+    counter that follow what has really loaded, a status line, the Accra clock and a ticker of what I work with.
+    Columns cover the page underneath and lift away when it is ready; later pages in the visit only get the
+    columns. If the script never runs, CSS fades the whole thing out after a few seconds anyway."""
+    ticks = "".join('<line x1="120" y1="%s" x2="120" y2="10"%s transform="rotate(%d 120 120)"/>'
+                    % (4 if n % 5 == 0 else 7, ' class="is-major"' if n % 5 == 0 else "", n * 6) for n in range(60))
+    digit = lambda count: '<span class="dn-loader__digit"><span>%s</span></span>' % "".join("<b>%d</b>" % d for d in range(count))
+    words = "".join("<span>%s</span><i></i>" % w for w in LOADER_WORDS)
+    return """<div class="dn-loader" id="dn-loader" aria-hidden="true">
+  <div class="dn-loader__cols"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="dn-loader__ui">
+    <span class="dn-loader__scan"></span>
+    <div class="dn-loader__top">
+      <span class="dn-loader__brand">Emmanuel Nortey<b>.</b></span>
+      <span class="dn-loader__clock">Accra <b data-clock>00:00:00</b> GMT</span>
+    </div>
+    <div class="dn-loader__core">
+      <div class="dn-loader__dial">
+        <span class="dn-loader__frame"><i></i><i></i><i></i><i></i></span>
+        <svg viewBox="0 0 240 240">
+          <defs><linearGradient id="dn-loader-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb4a8"/><stop offset="1" stop-color="#f87060"/></linearGradient></defs>
+          <g class="dn-loader__ticks">%(ticks)s</g>
+          <circle class="dn-loader__arc dn-loader__spin dn-loader__spin--back" cx="120" cy="120" r="106"/>
+          <circle class="dn-loader__track" cx="120" cy="120" r="96"/>
+          <circle class="dn-loader__ring" cx="120" cy="120" r="96" pathLength="100" transform="rotate(-90 120 120)"/>
+          <circle class="dn-loader__inner dn-loader__spin" cx="120" cy="120" r="80"/>
+          <g class="dn-loader__sat"><circle cx="120" cy="24" r="4"/></g>
+        </svg>
+        <div class="dn-loader__count">%(d2)s%(d10)s%(d10)s<sup>%%</sup></div>
+      </div>
+      <p class="dn-loader__status"><i></i><span>%(step)s</span></p>
+    </div>
+    <div class="dn-loader__bottom">
+      <div class="dn-loader__meta"><span>05.60&deg; N, 00.19&deg; W</span><span class="dn-loader__hint"><span class="dn-loader__hint--key">Press any key to skip</span><span class="dn-loader__hint--tap">Tap to skip</span></span></div>
+      <div class="dn-loader__bar"><i></i><b></b></div>
+      <div class="dn-loader__ticker"><div class="dn-loader__belt">%(words)s%(words)s</div></div>
+    </div>
+  </div>
+</div>
+""" % {"ticks": ticks, "d2": digit(2), "d10": digit(10), "words": words, "step": LOADER_STEPS[0]}
+
+
+MARQUEE_SOLID = ["Websites", "Online shops", "Web apps", "Nonprofit sites", "Chrome extensions", "Figma designs"]
+MARQUEE_LINE = ["WordPress", "WooCommerce", "Elementor", "Figma", "Next.js", "JavaScript", "Accra to London"]
+SPARK = ('<svg class="dn-marquee__spark" viewBox="0 0 24 24" aria-hidden="true">'
+         '<path d="M12 0c.8 6.6 4.6 10.9 12 12-7.4 1.1-11.2 5.4-12 12-.8-6.6-4.6-10.9-12-12C7.4 10.9 11.2 6.6 12 0z"/></svg>')
+
+
+def marquee_section():
+    """Two bands crossing under the hero: what I build on a coral band, what I build it with on a glass band.
+    portfolio.js runs them in opposite directions, faster and leaning while you scroll."""
+    group = lambda items: '<div class="dn-marquee__group">%s</div>' % "".join("<span>%s</span>%s" % (w, SPARK) for w in items)
+    band = lambda kind, items, way: ('<div class="dn-marquee__band dn-marquee__band--%s" data-marquee="%d">'
+                                     '<div class="dn-marquee__track">%s%s</div></div>' % (kind, way, group(items), group(items)))
+    return ('<section class="dn-marquee" aria-hidden="true">%s%s</section>\n'
+            % (band("line", MARQUEE_LINE, 1), band("solid", MARQUEE_SOLID, -1)))
+
+
 def global_edits(p):
     """Header, side panel, footer and menus shared by every page."""
     for href in ("works-2.html", "works-3.html", "https://evne.bravisthemes.com/portfolio/typeface-texture/"):
@@ -184,6 +247,15 @@ def global_edits(p):
     # (styled in portfolio.css, moved by portfolio.js)
     p.resub(r"(<body[^>]*>)", r'\1\n<div class="dn-backdrop" aria-hidden="true"><span class="dn-backdrop__glow dn-backdrop__glow--warm"></span>'
             r'<span class="dn-backdrop__glow dn-backdrop__glow--cool"></span></div>\n<div class="dn-grid" aria-hidden="true"><i></i></div>', 1)
+    # The theme's three bouncing dots give way to the preloader (loader_section)
+    s, e = p.balanced(p.h.index('<div id="pxl-loadding" class="pxl-loader style-1">'))
+    p.h = p.h[:s] + p.h[e:]
+    assert "pxl-loadding" not in p.h
+    p.sub('<div class="dn-grid" aria-hidden="true"><i></i></div>',
+          '<div class="dn-grid" aria-hidden="true"><i></i></div>\n<div class="dn-progress" aria-hidden="true"></div>\n' + loader_section(), 1)
+    # Later pages in a visit only get the columns, decided before anything is drawn; no script, no preloader
+    p.sub("</head>", '<script>try{if(sessionStorage.getItem("dn-seen"))document.documentElement.classList.add("dn-quick")}catch(e){}</script>\n'
+                     '<noscript><style>.dn-loader{display:none!important}</style></noscript>\n</head>', 1)
     # Portfolio script runs after the theme's (it uses the theme's GSAP)
     js_version = hashlib.md5(open(os.path.join(HERE, "assets", "portfolio.js"), "rb").read()).hexdigest()[:8]
     p.sub("</body>", '<script src="%sportfolio.js?v=%s"></script>\n</body>' % (IMG_URL, js_version), 1)
@@ -431,7 +503,7 @@ def home():
 
     # Hero: the theme's circles and heading give way to the globe hero (drawn by portfolio.js)
     s, e = p.element_span("94db63f")
-    p.h = p.h[:s] + hero_section() + p.h[e:]
+    p.h = p.h[:s] + hero_section() + marquee_section() + p.h[e:]
     p.sub('<script src="%sportfolio.js' % IMG_URL, '<script src="%sglobe-land.js"></script>\n<script src="%sportfolio.js' % (IMG_URL, IMG_URL))
 
     # Testimonials after the certificates; the contact section takes the place of the theme's call to action

@@ -422,7 +422,7 @@
     var layer = grid && grid.querySelector("i");
     if (!layer) return;
     var hero = document.querySelector(".dn-hero");
-    var BODY = 0.3, queued = false;
+    var BODY = 0.4, queued = false;
     // The backdrop's two lights wander as you read: the coral one starts behind the globe, crosses to the
     // left halfway down the page and ends on the right; the cyan one rises from the bottom left.
     var warm = document.querySelector(".dn-backdrop__glow--warm");
@@ -662,6 +662,302 @@
     window.addEventListener("resize", function () { if (isOpen() && window.innerWidth <= 1200) close(false); });
   }
 
+  // ---------- Motion layer ----------
+  // Whatever should play as the page is first uncovered waits for reveal(): the preloader calls it as its columns
+  // start to lift, and straight away when there is no preloader to wait for.
+  var revealed = false, revealQueue = [];
+  function onReveal(fn) { if (revealed) fn(); else revealQueue.push(fn); }
+  function reveal() {
+    if (revealed) return;
+    revealed = true;
+    revealQueue.splice(0).forEach(function (fn) {
+      try { fn(); } catch (err) { if (window.console) console.error(err); }
+    });
+  }
+
+  // Preloader. First page of a visit: the dial, counter, bar and status follow what has actually loaded (fonts,
+  // the images shown straight away, the page's load event), never faster than MIN so it reads, never longer
+  // than MAX. Later pages only get the columns. Any key, click, tap or scroll skips it. Reduce Motion: a fade.
+  function preloader() {
+    var el = document.getElementById("dn-loader");
+    if (!el) { reveal(); return; }
+    // No GSAP, or the script got here so late that the CSS failsafe (6s) has already faded it: just open the page
+    if (!window.gsap || performance.now() > 5500) { el.style.display = "none"; reveal(); return; }
+    el.classList.add("is-live");   // from here on the script, not the CSS failsafe, decides when it goes
+    var cols = el.querySelectorAll(".dn-loader__cols i");
+    var ui = el.querySelector(".dn-loader__ui");
+    var quick = document.documentElement.classList.contains("dn-quick");
+    try { sessionStorage.setItem("dn-seen", "1"); } catch (err) { /* private mode: every page gets the full one */ }
+    var exiting = false;
+
+    function hide() {
+      el.style.display = "none";
+      gsap.set(cols, { yPercent: -100 });
+    }
+    function exit(fast) {
+      if (exiting) return;
+      exiting = true;
+      stopSkip();
+      if (reduceMotion) {
+        reveal();
+        gsap.to(el, { autoAlpha: 0, duration: fast ? .2 : .4, ease: "power1.out", onComplete: function () { hide(); gsap.set(el, { clearProps: "opacity,visibility" }); } });
+        return;
+      }
+      var tl = gsap.timeline({ onComplete: hide });
+      if (!quick) {
+        tl.to(el.querySelector(".dn-loader__dial"), { scale: 1.12, duration: fast ? .2 : .55, ease: "power3.in" }, 0)
+          .to(ui, { autoAlpha: 0, duration: fast ? .2 : .45, ease: "power2.in" }, fast ? 0 : .1);
+      }
+      tl.to(cols, { yPercent: -100, duration: fast ? .7 : 1, ease: "expo.inOut", stagger: { each: .07, from: "center" } }, quick ? 0 : fast ? .1 : .3)
+        .add(reveal, "-=" + (fast ? .5 : .72));
+    }
+
+    // Skipping: wheel and keys are held back so the page doesn't jump underneath; browser shortcuts still work
+    var skipEvents = ["wheel", "touchstart", "mousedown", "keydown"];
+    function skip(e) {
+      if (exiting) return;
+      if (e.type === "keydown" && (e.metaKey || e.ctrlKey || e.altKey || e.key === "Tab")) return;
+      if (e.type === "wheel" || e.type === "keydown") { e.preventDefault(); e.stopPropagation(); }   // nor the theme's smooth scroll
+      if (quick) exit(true); else finish(true);   // the short form has no dial to fill
+    }
+    function stopSkip() {
+      skipEvents.forEach(function (type) { window.removeEventListener(type, skip, { capture: true }); });
+    }
+    skipEvents.forEach(function (type) { window.addEventListener(type, skip, { capture: true, passive: false }); });
+
+    if (quick) {
+      var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+      Promise.race([ready, new Promise(function (r) { setTimeout(r, 700); })]).then(function () { setTimeout(exit, 60); });
+      setTimeout(function () { exit(true); }, 1600);   // whatever happens, the page shows
+      return;
+    }
+
+    // Times run from when the page started loading (performance.now() counts from there), not from when this
+    // script got to run, so a slow phone never waits longer than MAX plus the exit
+    var MIN = 1500, MAX = 4000, shown = 0, last = performance.now(), finished = false;
+    var dial = el.querySelector(".dn-loader__ring"), sat = el.querySelector(".dn-loader__sat");
+    var bar = el.querySelector(".dn-loader__bar i"), head = el.querySelector(".dn-loader__bar b");
+    var digits = el.querySelectorAll(".dn-loader__digit"), status = el.querySelector(".dn-loader__status span");
+    var STEPS = ["Waking up the globe", "Plotting Accra to London", "Laying out the grid", "Nearly there", "Welcome in"];
+    var step = 0, lastPct = -1;
+
+    // What the counter follows
+    var total = 2, done = 0;
+    function one() { done++; }
+    Array.prototype.forEach.call(document.images, function (img) {
+      if (img.loading === "lazy") return;
+      total++;
+      if (img.complete) { done++; return; }
+      img.addEventListener("load", one, { once: true });
+      img.addEventListener("error", one, { once: true });
+    });
+    var fontsIn = false;
+    function fonts() { fontsIn = true; done++; }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fonts); else fonts();
+    // The page's own load event means everything it needs is in, including images the theme turns lazy later
+    // (those never report back), so it counts as the finish line
+    function loaded() { done = Math.max(done, total - (fontsIn ? 0 : 1)); }
+    if (document.readyState === "complete") loaded(); else window.addEventListener("load", loaded, { once: true });
+
+    function decode(text) {
+      if (reduceMotion) { status.textContent = text; return; }
+      var glyphs = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789/<>#*+=", t0 = performance.now();
+      (function run(now) {
+        var p = Math.min(1, (now - t0) / 380), out = "";
+        for (var i = 0; i < text.length; i++) out += text[i] === " " || i < p * text.length ? text[i] : glyphs[Math.floor(Math.random() * glyphs.length)];
+        status.textContent = out;
+        if (p < 1) requestAnimationFrame(run);
+      })(t0);
+    }
+    function render(p) {
+      var pct = Math.round(p * 100);
+      dial.style.strokeDashoffset = (100 - p * 100).toFixed(2);
+      sat.setAttribute("transform", "rotate(" + (p * 360).toFixed(2) + " 120 120)");
+      bar.style.transform = "scaleX(" + p.toFixed(4) + ")";
+      head.style.left = (p * 100).toFixed(2) + "%";
+      if (pct !== lastPct) {
+        lastPct = pct;
+        var parts = [pct >= 100 ? 1 : 0, Math.floor(pct / 10) % 10, pct % 10];
+        parts.forEach(function (n, i) {
+          digits[i].firstElementChild.style.transform = "translate3d(0," + (-1.3 * n).toFixed(1) + "em,0)";   // 1.3em a digit
+          digits[i].classList.toggle("is-dim", (i === 0 && pct < 100) || (i === 1 && pct < 10));
+        });
+      }
+      var next = p >= 1 ? 4 : p >= .9 ? 3 : p >= .6 ? 2 : p >= .3 ? 1 : 0;
+      if (next !== step) { step = next; decode(STEPS[step]); }
+    }
+    function finish(fast) {
+      if (finished) return;
+      finished = true;
+      gsap.ticker.remove(tick);
+      clearTimeout(cap);
+      render(1);
+      if (fast) exit(true); else setTimeout(exit, reduceMotion ? 150 : 280);   // a beat on 100 before it opens
+    }
+    function tick() {
+      var now = performance.now(), age = now, dt = Math.min(64, now - last);
+      last = now;
+      var target = age >= MAX ? 1 : Math.min(1, done / total, age / MIN);
+      shown += (target - shown) * (1 - Math.pow(.86, dt / 16.7));
+      if (target >= 1 && shown > .992) shown = 1;
+      render(shown);
+      if (shown >= 1) finish(false);
+    }
+    gsap.ticker.add(tick);
+    var cap = setTimeout(function () { finish(false); }, Math.max(0, MAX + 800 - performance.now()));   // in case frames stop coming
+  }
+
+  // Leaving for another page of the site: the columns rise from the bottom, then the next page lifts them away
+  // (it opens in the short form, see preloader). Links that open elsewhere, download, or jump within this page
+  // are left alone, as are clicks with a modifier key.
+  function pageLeave() {
+    var el = document.getElementById("dn-loader");
+    if (!el || !window.gsap || reduceMotion) return;
+    var cols = el.querySelectorAll(".dn-loader__cols i"), leaving = false;
+    document.addEventListener("click", function (e) {
+      if (leaving || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest("a[href]");
+      if (!a || (a.target && a.target !== "_self") || a.hasAttribute("download")) return;
+      if (!/^[\w-]+\.html(?:[?#].*)?$/.test(a.getAttribute("href"))) return;   // only this site's own pages
+      var url = new URL(a.href, location.href);
+      if (url.origin !== location.origin || (url.pathname === location.pathname && url.hash)) return;
+      e.preventDefault();
+      leaving = true;
+      var gone = false;
+      var go = function () { if (!gone) { gone = true; window.location.href = url.href; } };
+      el.classList.add("is-leaving");
+      el.style.display = "";
+      gsap.fromTo(cols, { yPercent: 100 }, { yPercent: 0, duration: .55, ease: "expo.in", stagger: { each: .05, from: "center" }, onComplete: go });
+      setTimeout(go, 1100);
+    });
+    // Coming back with the Back button can restore this page as it was left, columns down; lift them
+    window.addEventListener("pageshow", function (e) {
+      if (!e.persisted) return;
+      leaving = false;
+      gsap.killTweensOf(cols);
+      el.classList.remove("is-leaving");
+      el.style.display = "none";
+      gsap.set(cols, { yPercent: -100 });
+    });
+  }
+
+  // The hero comes in as the preloader lifts: pill, the two lines (which then decode), intro, buttons, globe, readouts
+  function heroEntrance() {
+    var hero = document.querySelector(".dn-hero");
+    if (!hero || !window.gsap || reduceMotion) return;
+    var q = function (s) { return hero.querySelectorAll(s); };
+    var after = { clearProps: "transform,opacity,visibility,clipPath" };
+    gsap.timeline({ defaults: { ease: "expo.out", duration: 1.2 } })
+      .from(q(".dn-pill"), Object.assign({ y: 18, autoAlpha: 0, duration: .9 }, after), 0)
+      .fromTo(q(".dn-hero__line"), { yPercent: 70, autoAlpha: 0, clipPath: "inset(0% 0% 100% 0%)" },
+              Object.assign({ yPercent: 0, autoAlpha: 1, clipPath: "inset(0% 0% -25% 0%)", stagger: .12 }, after), .05)
+      .from(q(".dn-hero__lede"), Object.assign({ y: 26, autoAlpha: 0 }, after), .3)
+      .from(q(".dn-hero__actions > *"), Object.assign({ y: 22, autoAlpha: 0, stagger: .08 }, after), .4)
+      .from(q(".dn-hero__globe canvas"), Object.assign({ scale: .82, autoAlpha: 0, duration: 1.8 }, after), .1)
+      .from(q(".dn-hud"), Object.assign({ autoAlpha: 0, stagger: .1, duration: .6, ease: "power2.out" }, after), .7)
+      .from(q(".dn-hero__foot > *"), Object.assign({ y: 12, autoAlpha: 0, stagger: .1, duration: .8 }, after), .8);
+  }
+
+  // Chapter and page titles rise word by word from behind a mask as they come into view; the tag and intro
+  // follow. The title keeps its full text as its accessible name.
+  function splitWords(el) {
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), nodes = [], node;
+    while ((node = walker.nextNode())) nodes.push(node);
+    nodes.forEach(function (text) {
+      var frag = document.createDocumentFragment();
+      text.nodeValue.split(/(\s+)/).forEach(function (part) {
+        if (!part) return;
+        if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+        var mask = document.createElement("span"), inner = document.createElement("span");
+        mask.className = "dn-word"; mask.setAttribute("aria-hidden", "true");
+        inner.className = "dn-word__in"; inner.textContent = part;
+        mask.appendChild(inner);
+        frag.appendChild(mask);
+      });
+      text.parentNode.replaceChild(frag, text);
+    });
+    return el.querySelectorAll(".dn-word__in");
+  }
+  function headingReveal() {
+    if (!window.gsap || !window.ScrollTrigger || reduceMotion) return;
+    gsap.registerPlugin(ScrollTrigger);
+    Array.prototype.forEach.call(document.querySelectorAll(".dn-chapter"), function (head) {
+      var title = head.querySelector(".dn-chapter__title");
+      if (!title || !title.textContent.trim()) return;
+      title.setAttribute("aria-label", title.textContent.replace(/\s+/g, " ").trim());
+      var words = splitWords(title);
+      var extras = head.querySelectorAll(".dn-chapter__tag, .dn-chapter__lede");
+      gsap.set(words, { yPercent: 115 });
+      gsap.set(extras, { autoAlpha: 0, y: 18 });
+      ScrollTrigger.create({
+        trigger: head, start: "top 90%", once: true,
+        onEnter: function () {
+          gsap.to(words, { yPercent: 0, duration: 1.1, ease: "expo.out", stagger: .045, clearProps: "transform" });
+          gsap.to(extras, { autoAlpha: 1, y: 0, duration: .9, ease: "power3.out", stagger: .12, delay: .12, clearProps: "transform,opacity,visibility" });
+        }
+      });
+    });
+  }
+
+  // The crossing bands under the hero: each runs its own way, speeds up with the scroll and turns round when
+  // you scroll back up, leaning a little while it moves fast. Runs only while on screen; still under Reduce Motion.
+  function marquees() {
+    var bands = document.querySelectorAll("[data-marquee]");
+    if (!bands.length || !window.gsap || reduceMotion) return;
+    var rows = Array.prototype.map.call(bands, function (band) {
+      return { band: band, track: band.querySelector(".dn-marquee__track"), way: +band.getAttribute("data-marquee") || 1, x: 0, w: 0 };
+    });
+    function measure() {
+      rows.forEach(function (row) {
+        var group = row.track.firstElementChild;
+        row.w = group.offsetWidth;
+        // enough copies that the band never shows its end
+        while (row.w > 0 && row.track.children.length * row.w < row.band.offsetWidth + row.w * 1.5) row.track.appendChild(group.cloneNode(true));
+      });
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    window.addEventListener("load", measure);
+
+    var onScreen = true, lastY = window.pageYOffset, dir = 1, boost = 0, lean = 0;
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) { onScreen = entries[0].isIntersecting; }).observe(bands[0].parentNode);
+    }
+    gsap.ticker.add(function (time, deltaMS) {
+      var y = window.pageYOffset, moved = y - lastY, dt = Math.max(1, Math.min(64, deltaMS));
+      lastY = y;
+      if (!onScreen) return;
+      if (moved) dir = moved > 0 ? 1 : -1;
+      var speed = Math.abs(moved) / dt * 1000;                     // px per second of scrolling
+      boost += (Math.min(speed / 220, 7) - boost) * .1;
+      lean += (Math.max(-7, Math.min(7, moved / dt * 2.2)) - lean) * .12;
+      rows.forEach(function (row) {
+        if (!row.w) return;
+        row.x = (row.x + row.way * dir * (55 + 55 * boost) * dt / 1000) % row.w;
+        if (row.x < 0) row.x += row.w;
+        row.track.style.transform = "translate3d(" + (-row.x).toFixed(2) + "px,0,0) skewX(" + (lean * row.way).toFixed(2) + "deg)";
+      });
+    });
+  }
+
+  // A thin line along the top of the window shows how far down the page you are
+  function readingLine() {
+    var line = document.querySelector(".dn-progress");
+    if (!line) return;
+    var queued = false;
+    function draw() {
+      queued = false;
+      var room = document.documentElement.scrollHeight - window.innerHeight;
+      line.style.transform = "scaleX(" + (room > 0 ? Math.min(1, window.pageYOffset / room) : 0).toFixed(4) + ")";
+    }
+    window.addEventListener("scroll", function () { if (!queued) { queued = true; requestAnimationFrame(draw); } }, { passive: true });
+    window.addEventListener("resize", draw);
+    draw();
+  }
+
+  preloader();
+  pageLeave();
   siteGrid();
   phoneMenu();
   sidePanel();
@@ -670,7 +966,11 @@
   countUp();
   stepsInView();
   chapterGuide();
-  decodeTagline();
+  onReveal(heroEntrance);
+  onReveal(decodeTagline);
+  onReveal(headingReveal);
+  marquees();
+  readingLine();
   accraClock();
   backToTop();
   testimonials();
