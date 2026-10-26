@@ -1,1 +1,6 @@
 .DS_Store
+__pycache__/
+# generated while building
+_build/artwork/
+_build/cv/cv.html
+_build/**/.profile/
