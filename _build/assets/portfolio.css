@@ -1224,3 +1224,49 @@ body .dn-menu-slot button.dn-menu-btn:hover, body .dn-menu-slot button.dn-menu-b
 .dn-menu-btn__icon i { display: block; width: 16px; height: 2px; border-radius: 2px; background: #fff; }
 html.dn-menu-open, html.dn-menu-open body { overflow: hidden !important; }   /* the page stays put while the menu is open */
 @media (prefers-reduced-transparency: reduce) { .dn-menu-btn { background: #16171c; -webkit-backdrop-filter: none; backdrop-filter: none; } }
+
+/* ---------- Phone menu panel: its top row sits exactly where the header's does, so opening the menu
+   doesn't move the logo (15px in, centred 40px down) and the close button takes the Menu button's place ---------- */
+@media (max-width: 1200px) {
+  body .pxl-header-menu .pxl-header-menu-scroll { padding: 16.5px 16px 40px 15px !important; }
+  body .pxl-header-menu .pxl-logo-mobile { height: 47px; margin: 0 0 32px !important; padding: 0 !important; display: flex !important; align-items: center; }
+  body .pxl-header-menu .pxl-logo-mobile img { width: 47px !important; height: 47px !important; max-width: none; }
+}
+
+/* ---------- Liquid glass on every button: translucent, blurring what's behind, with a bright top edge ---------- */
+.dn-btn, .dn-form button.dn-form__submit, body .dn-menu-slot button.dn-menu-btn, body .pxl-header-menu button.pxl-menu-close {
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important; backdrop-filter: blur(16px) saturate(180%) !important;
+}
+/* main action: white glass */
+.dn-btn--light, .dn-form button.dn-form__submit {
+  background: linear-gradient(170deg, rgba(255, 255, 255, .97), rgba(255, 255, 255, .8)) !important;
+  border: 1px solid rgba(255, 255, 255, .9);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -3px 8px rgba(10, 11, 14, .08), 0 14px 32px -14px rgba(0, 0, 0, .75);
+}
+.dn-btn--light:hover, .dn-form button.dn-form__submit:hover {
+  background: linear-gradient(170deg, rgba(255, 150, 136, .97), rgba(248, 112, 96, .88)) !important; border-color: rgba(255, 190, 180, .9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), inset 0 -3px 8px rgba(120, 30, 20, .18), 0 14px 32px -14px rgba(248, 112, 96, .6);
+}
+.dn-btn--light .dn-btn__icon {
+  background: linear-gradient(170deg, #2a2c33, #0a0b0e); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 2px 6px rgba(0, 0, 0, .25);
+}
+/* everything else: clear glass */
+.dn-btn--ghost, body .dn-menu-slot button.dn-menu-btn, body .pxl-header-menu button.pxl-menu-close {
+  background: linear-gradient(160deg, rgba(255, 255, 255, .17), rgba(255, 255, 255, .04) 55%, rgba(255, 255, 255, .09)) !important;
+  border: 1px solid rgba(255, 255, 255, .28) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -1px 0 rgba(0, 0, 0, .25), 0 12px 30px -14px rgba(0, 0, 0, .75) !important;
+}
+.dn-btn--ghost:hover, body .dn-menu-slot button.dn-menu-btn:hover, body .dn-menu-slot button.dn-menu-btn:active, body .pxl-header-menu button.pxl-menu-close:hover {
+  background: linear-gradient(160deg, rgba(255, 255, 255, .26), rgba(255, 255, 255, .08) 55%, rgba(255, 255, 255, .14)) !important;
+  border-color: rgba(255, 255, 255, .5) !important;
+}
+.dn-btn--ghost .dn-btn__icon, .dn-btn--ghost.dn-btn--cv .dn-btn__icon, .dn-menu-btn__icon {
+  background: linear-gradient(160deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .07)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+/* Reduce Transparency: solid buttons */
+@media (prefers-reduced-transparency: reduce) {
+  .dn-btn, .dn-form button.dn-form__submit, body .dn-menu-slot button.dn-menu-btn, body .pxl-header-menu button.pxl-menu-close { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  .dn-btn--light, .dn-form button.dn-form__submit { background: #fff !important; }
+  .dn-btn--ghost, body .dn-menu-slot button.dn-menu-btn, body .pxl-header-menu button.pxl-menu-close { background: #1c1d22 !important; }
+}
