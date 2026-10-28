@@ -851,7 +851,7 @@
       .from(q(".dn-pill"), Object.assign({ y: 18, autoAlpha: 0, duration: .9 }, after), 0)
       .fromTo(q(".dn-hero__line"), { yPercent: 70, autoAlpha: 0, clipPath: "inset(0% 0% 100% 0%)" },
               Object.assign({ yPercent: 0, autoAlpha: 1, clipPath: "inset(0% 0% -25% 0%)", stagger: .12 }, after), .05)
-      .from(q(".dn-hero__lede"), Object.assign({ y: 26, autoAlpha: 0 }, after), .3)
+      .from(q(".dn-hero__kicker, .dn-hero__lede, .dn-hero__note"), Object.assign({ y: 26, autoAlpha: 0, stagger: .08 }, after), .3)
       .from(q(".dn-hero__actions > *"), Object.assign({ y: 22, autoAlpha: 0, stagger: .08 }, after), .4)
       .from(q(".dn-hero__globe canvas"), Object.assign({ scale: .82, autoAlpha: 0, duration: 1.8 }, after), .1)
       .from(q(".dn-hud"), Object.assign({ autoAlpha: 0, stagger: .1, duration: .6, ease: "power2.out" }, after), .7)

@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 import { writeFileSync, mkdirSync } from "node:fs";
 const [OUT, URL, W, H, STEP, MAX] = process.argv.slice(2);
 const width = +W, height = +H, step = +(STEP || H), maxShots = +(MAX || 40);
-const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", PORT = 9334;
+const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", PORT = +(process.env.PORT || 9334);   // PORT=… if 9334 is taken
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 mkdirSync(OUT, { recursive: true });
 const chrome = spawn(CHROME, ["--headless=new", "--hide-scrollbars", `--remote-debugging-port=${PORT}`, `--user-data-dir=${OUT}/.profile`, "--no-first-run", "about:blank"], { stdio: "ignore" });

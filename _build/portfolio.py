@@ -567,11 +567,13 @@ def hero_section():
   <div class="dn-hero__inner">
     <div class="dn-hero__copy">
       <span class="dn-pill"><i></i>Taking on new projects</span>
-      <h1 class="dn-hero__title" aria-label="Nort Just Design. Nort Just Code.">
-        <span class="dn-hero__line" data-scramble aria-hidden="true">Nort Just Design.</span>
-        <span class="dn-hero__line dn-hero__line--accent" data-scramble aria-hidden="true">Nort Just Code.</span>
+      <h1 class="dn-hero__title" aria-label="The Internet Doesn’t Owe You Attention">
+        <span class="dn-hero__line" data-scramble aria-hidden="true">The Internet Doesn’t</span>
+        <span class="dn-hero__line dn-hero__line--accent" data-scramble aria-hidden="true">Owe You Attention</span>
       </h1>
-      <p class="dn-hero__lede">I’m Emmanuel, a web and WordPress developer in Accra. I design every site in Figma before I build it, and I’m still around after it goes live. Most of my clients are in Ghana, with a few in the UK.</p>
+      <p class="dn-hero__kicker">And your customers certainly don’t owe you a second click.</p>
+      <p class="dn-hero__lede">I’m Manuel. I build websites that give people a reason to stop, explore, trust, and take the next step. Thoughtful design meets serious development, with every detail earning its place.</p>
+      <p class="dn-hero__note">Anyone can put your business online. I’m interested in what happens when people get there.</p>
       <div class="dn-hero__actions">
         <a class="dn-btn dn-btn--light" href="#contact">Start a project<span class="dn-btn__icon" aria-hidden="true">&#8594;</span></a>
         <a class="dn-btn dn-btn--ghost" href="works-1.html">See my work</a>

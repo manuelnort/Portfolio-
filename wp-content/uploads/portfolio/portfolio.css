@@ -601,7 +601,13 @@ body .pxl-button4.style-2 .btn:hover .circle-inner .slot svg path { fill: #fff; 
   animation: dn-sheen 6s linear infinite;
 }
 @keyframes dn-sheen { to { background-position: -200% 0; } }
-.dn-hero__lede { max-width: 540px; margin: 28px 0 0; font: 300 20px/1.55 "Roboto Flex", sans-serif; color: rgba(255, 255, 255, .72); }
+.dn-hero__kicker { max-width: 560px; margin: 22px 0 0; font: 400 clamp(19px, 1.6vw, 24px)/1.35 "Glancyr Neue", sans-serif; letter-spacing: -.01em; color: #fff; }
+.dn-hero__lede { max-width: 540px; margin: 20px 0 0; font: 300 19px/1.55 "Roboto Flex", sans-serif; color: rgba(255, 255, 255, .72); }
+@media (min-width: 1025px) {   /* two columns: the longest line ("The Internet Doesn't") has to fit beside the globe */
+  .dn-hero__title { font-size: clamp(40px, 4.3vw, 62px); }
+}
+.dn-hero__note { max-width: 540px; margin: 18px 0 0; padding-left: 16px; border-left: 2px solid var(--dn-accent);
+  font: 500 17px/1.5 "Roboto Flex", sans-serif; color: #fff; }
 .dn-hero__actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
 .dn-hero__globe { position: relative; aspect-ratio: 1; width: 100%; max-width: 640px; justify-self: center; }
 .dn-hero__globe canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
