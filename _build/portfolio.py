@@ -470,17 +470,20 @@ def home():
     p.resub(r"Our commitment to pushing creative boundaries has earned us recognition[^<]*",
             "Courses I’ve finished in UX design, IT support and cybersecurity. They come up in my work more often than you’d think.")
     for old, new in sorted([  # longest first: titles also appear inside the descriptions
-        ("Effie Awards", "Google UX Design"), ("Multiple Effie Awards", "Google via Coursera"),
+        ("Effie Awards", "UX design"), ("Multiple Effie Awards", "Google via Coursera"),
         ("Honored with multiple Effie Awards for our results-driven campaigns that delivered measurable success for our clients.",
          "Foundations of User Experience (UX) Design: user research, wireframing, prototyping and usability."),
-        ("Yellow Dot Award", "Google IT Support"), ("Blend aesthetics", "Google via Coursera"),
+        ("Yellow Dot Award", "IT support"), ("Blend aesthetics", "Google via Coursera"),
         ("Recognized for exceptional design with a Yellow Dot Award, celebrating our ability to blend aesthetics with functionality in branding and digital projects.",
          "Technical Support Fundamentals, which covers troubleshooting and dealing with users who just want their computer to work."),
-        ("Kyiv International Advertising Festival", "Cybersecurity Operations"), ("Global impact.", "GI-KACE, Accra"),
+        ("Kyiv International Advertising Festival", "Cybersecurity"), ("Global impact.", "GI-KACE, Accra"),
         ("Multiple wins at the Kyiv International Ad Festival, showcasing our innovative approach to advertising and our ability to make a global impact.",
          "Cybersecurity training at the Ghana-India Kofi Annan Centre of Excellence in ICT, mostly on spotting and stopping threats."),
     ], key=lambda pair: -len(pair[0])):
         p.sub(old, new)
+
+    for eid in ("d89bffc", "27a7179", "e490915"):   # "Google via Coursera" and "GI-KACE, Accra": the cards show them
+        p.remove(eid)
 
     # No real testimonials yet: drop the demo ones
     p.remove("ecebf61")
@@ -738,17 +741,22 @@ def story_now():
 
 
 # Chapter 3. (title, what happens)
-STEPS = [
-    ("We talk", "A call about what the site is for and who will use it. You show me whatever content you already have, and we agree on scope and a timeline."),
-    ("I design it in Figma", "You see every page and ask for changes before I write any code."),
-    ("I build it", "Usually in WordPress and Elementor, with whatever forms or payments you need. I check it on my phone as I go."),
-    ("We launch", "I set up analytics and show your team how to update things. If anything breaks after that, message me."),
+STEPS = [  # (name, what happens, what you have at the end of it); the About page uses the same four names
+    ("Discover", "A call about what the site is for and who will use it. You show me whatever content you already have.",
+     "A scope and a timeline we both agree on"),
+    ("Design", "I design every page in Figma. You see all of it and ask for changes before I write any code.",
+     "The whole site in Figma, signed off by you"),
+    ("Build", "Usually in WordPress and Elementor, with whatever forms or payments you need. I check it on my phone as I go.",
+     "A working site that holds up on phones"),
+    ("Launch", "I set up analytics and show your team how to update things. If anything breaks after that, message me.",
+     "Your site live, and a team that can update it"),
 ]
 
 
 def story_process():
-    steps = "".join('<li class="dn-steps__step"><span class="dn-steps__num">%02d</span><h3>%s</h3><p>%s</p></li>'
-                    % (i + 1, title, text) for i, (title, text) in enumerate(STEPS))
+    steps = "".join('<li class="dn-steps__step"><span class="dn-steps__num">%02d</span><h3>%s</h3><p>%s</p>'
+                    '<p class="dn-steps__out"><span>You get</span>%s</p></li>'
+                    % (i + 1, title, text, out) for i, (title, text, out) in enumerate(STEPS))
     return ('<section class="dn-process" id="process"><div class="dn-process__inner">%s<ol class="dn-steps">%s</ol></div></section>\n'
             % (chapter(3, "How a project goes", "Here’s how we’d work together",
                        "You see the design before I build anything, and once the site is live you can update it yourself."), steps))
@@ -838,7 +846,7 @@ def about():
          "I plan the pages and design them in Figma. You see every screen and ask for changes before I write any code."),
         ("Consulting", "Build",
          "I build it, usually in WordPress and Elementor, with whatever forms or payments you need, and I keep checking it on my phone as I go."),
-        ("Design", "Launch &amp; support",
+        ("Design", "Launch",
          "Once it’s live I set up analytics and show your team how to update things. If anything breaks after that, message me."),
     ]
     for old, new, _ in reversed(steps):  # "Design" is both an old and a new title
@@ -887,7 +895,7 @@ def about():
         ("c26b77a", 0, "art-step-discover.jpg", 600, 600, "Discover"),
         ("c26b77a", 1, "art-step-design.jpg", 600, 600, "Design"),
         ("c26b77a", 2, "art-step-build.jpg", 600, 600, "Build"),
-        ("c26b77a", 3, "art-step-launch.jpg", 600, 600, "Launch and support"),
+        ("c26b77a", 3, "art-step-launch.jpg", 600, 600, "Launch"),
         ("9a0b92c", 0, "exp-ka.jpg", 300, 300, "KA Technologies"),
         ("9a0b92c", 1, "exp-ug.jpg", 300, 300, "University of Ghana"),
         ("9a0b92c", 2, "exp-jumeni.jpg", 300, 300, "Jumeni Technologies"),

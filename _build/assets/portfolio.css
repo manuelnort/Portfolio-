@@ -586,7 +586,7 @@ body .pxl-button4.style-2 .btn:hover .circle-inner .slot svg path { fill: #fff; 
 }
 .dn-hero__bg { display: none; }   /* the site backdrop (below) is the hero's background now */
 .dn-hero__inner {
-  width: 100%; max-width: 1440px; margin: 0 auto; flex: 1;
+  width: 100%; max-width: 1280px; margin: 0 auto; flex: 1;
   display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; gap: 24px;
 }
 .dn-hero__title {
@@ -619,7 +619,7 @@ body .pxl-button4.style-2 .btn:hover .circle-inner .slot svg path { fill: #fff; 
 .dn-hud--bl { bottom: 0; left: 0; }    .dn-hud--bl::before { bottom: 0; left: 0; border-bottom-width: 1.5px; border-left-width: 1.5px; }
 .dn-hud--br { bottom: 0; right: 0; text-align: right; } .dn-hud--br::before { bottom: 0; right: 0; border-bottom-width: 1.5px; border-right-width: 1.5px; }
 .dn-hero__foot {
-  width: 100%; max-width: 1440px; margin: 32px auto 0; padding-top: 20px;
+  width: 100%; max-width: 1280px; margin: 32px auto 0; padding-top: 20px;
   display: flex; justify-content: space-between; gap: 16px;
   border-top: 1px solid rgba(255, 255, 255, .1);
   font: 500 12px/1 "Roboto Flex", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 255, 255, .55);
@@ -636,14 +636,14 @@ body .elementor-element-ace0414 { margin-top: 0 !important; }
 @media (max-width: 1024px) {
   .dn-hero { padding: 130px 24px 28px; }
   .dn-hero__inner { grid-template-columns: 1fr; gap: 8px; }
-  .dn-hero__globe { max-width: 520px; order: -1; margin-top: -20px; }
+  .dn-hero__globe { max-width: 520px; margin-top: 36px; }
 }
 @media (max-width: 767px) {
   .dn-hero { padding: 110px 16px 24px; }
   .dn-hero__title { font-size: clamp(36px, 11vw, 56px); margin-top: 20px; }
   .dn-hero__line { white-space: normal; }
   .dn-hero__lede { font-size: 17px; }
-  .dn-hero__globe { max-width: 380px; }
+  .dn-hero__globe { max-width: 340px; margin-top: 28px; }
   .dn-hud { font-size: 10px; padding: 6px 8px; }
   .dn-hero__meta { display: none; }
 }
@@ -1399,3 +1399,41 @@ html.dn-quick .dn-loader__ui, .dn-loader.is-leaving .dn-loader__ui { display: no
   .dn-loader__scan, .dn-loader__spin, .dn-loader__belt, .dn-loader__status i { animation: none; }
   .dn-loader__digit > span { transition: none; }
 }
+
+/* =====================================================================================================
+   Layout pass (apple-design review). One content column everywhere: 1280px wide, its edge at the page padding;
+   bigger hit areas on small links; left-aligned reading text; the process says what each step hands over.
+   ===================================================================================================== */
+
+/* Footer: the padding goes outside the 1280px column, as in every other section */
+.dn-foot__top, .dn-foot__base { box-sizing: content-box; }
+
+/* Works: the filter and the grid start on the same edge as the page title */
+body .pxl-grid.pxl-portfolio-grid { max-width: 1280px; margin: 0 auto; padding: 0 var(--dn-pad); box-sizing: content-box; }
+.pxl-grid .pxl-grid-filter.dn-filter { justify-content: flex-start; }
+/* the theme's column adds 10px around the grid; take it off so the cards meet the page edge (older browsers keep it) */
+body .elementor-widget-wrap:has(> .elementor-element-403b1e1) { padding-left: 0 !important; padding-right: 0 !important; }
+
+/* Hit areas. Text links grow invisibly (inline padding doesn't move the layout) to about 44px tall; the
+   underline stays under the words. The chapter guide's links grow to 28px. */
+.dn-foot__col a, .dn-contact__direct a { padding: 12px 0; background-origin: content-box; background-clip: content-box; }
+.dn-rail ol { gap: 0; }
+.dn-rail a { padding: 8px 0; }
+
+/* About: the experience descriptions were theme grey (2.6:1); now the site's secondary text (about 9:1) */
+body .elementor-element-9a0b92c .pxl-item--desc { color: var(--dn-ink-2) !important; }
+
+/* Phones: reading text lines up on the left edge like the rest of the site, instead of centred blocks */
+@media (max-width: 767px) {
+  body .elementor-element-4e3c89d :is(h1, h2, h3, h4, p, .pxl-item--inner, .elementor-widget-container, .pxl-heading, .pxl-item--title),
+  body .elementor-element-a3e293c :is(.pxl-heading, .pxl-item--title, [class*="pxl-counter"], .elementor-widget-container, .elementor-widget-wrap),
+  body .elementor-element-012a983 :is(p, .pxl-item--inner, .elementor-widget-container) { text-align: left !important; justify-content: flex-start !important; }
+  body .elementor-element-012a983 p { line-height: 1.5 !important; }
+}
+
+/* Process: what each step hands over */
+.dn-steps__step { display: flex; flex-direction: column; }   /* "You get" lines up across the four steps */
+.dn-steps__out { display: flex; flex-direction: column; gap: 6px; margin: auto 0 0 !important; padding-top: 16px; border-top: 1px dashed rgba(255, 255, 255, .14);
+  font: 500 15px/1.45 "Roboto Flex", sans-serif !important; color: var(--dn-ink) !important; }
+.dn-steps__step > p:not(.dn-steps__out) { margin-bottom: 20px; }
+.dn-steps__out span { font: var(--dn-label); letter-spacing: .14em; text-transform: uppercase; color: var(--dn-accent); }
