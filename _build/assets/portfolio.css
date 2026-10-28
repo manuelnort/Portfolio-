@@ -1107,7 +1107,7 @@ body .elementor-element-703b983 { position: relative; z-index: 3; }
   margin-top: 96px; padding: 10px 0; overflow: hidden; border-top: 1px solid var(--dn-line); border-bottom: 1px solid var(--dn-line);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
-.dn-foot__track { display: flex; align-items: center; gap: .45em; width: max-content; font: 400 clamp(56px, 9vw, 150px)/1.15 "Glancyr Neue", sans-serif; letter-spacing: -.02em; white-space: nowrap; animation: dn-foot-belt 50s linear infinite; }
+.dn-foot__track { display: flex; align-items: center; gap: .45em; width: max-content; font: 400 clamp(56px, 9vw, 150px)/1.15 "Glancyr Neue", sans-serif; letter-spacing: -.02em; white-space: nowrap; animation: dn-foot-belt 58s linear infinite; }
 .dn-foot__track span { color: #fff; }
 .dn-foot__track .dn-foot__accent { color: transparent; background: linear-gradient(90deg, #f87060, #ffb4a8 50%, #f87060); -webkit-background-clip: text; background-clip: text; }
 .dn-foot__track i { width: .16em; height: .16em; border-radius: 50%; background: var(--dn-accent); flex: none; }

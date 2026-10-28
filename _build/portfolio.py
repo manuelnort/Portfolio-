@@ -115,8 +115,8 @@ def footer_section(page):
     tagline the homepage opens with, moving across the page, and a way back to the top."""
     links = "".join('<li><a href="%s"%s>%s</a></li>' % (href, ' aria-current="page"' if href == page else "", label)
                     for href, label in FOOTER_PAGES)
-    words = ('<span>Nort Just Design.</span><i aria-hidden="true"></i>'
-             '<span class="dn-foot__accent">Nort Just Code.</span><i aria-hidden="true"></i>')
+    words = ('<span>The Internet Doesn’t</span><i aria-hidden="true"></i>'
+             '<span class="dn-foot__accent">Owe You Attention</span><i aria-hidden="true"></i>')
     return """<section class="dn-foot">
   <div class="dn-foot__top">
     <div class="dn-foot__brand">
