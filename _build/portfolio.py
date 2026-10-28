@@ -750,7 +750,7 @@ STEPS = [  # (name, what happens, what you have at the end of it); the About pag
      "The whole site in Figma, signed off by you"),
     ("Build", "Usually in WordPress and Elementor, with whatever forms or payments you need. I check it on my phone as I go.",
      "A working site that holds up on phones"),
-    ("Launch", "I set up analytics and show your team how to update things. If anything breaks after that, message me.",
+    ("Launch", "A smooth launch is the easy part. I set up tracking, show your team how to take control, and stay within reach after handover.",
      "Your site live, and a team that can update it"),
 ]
 
@@ -847,7 +847,7 @@ def about():
         ("Brand Strategy", "Design",
          "I plan the pages and design them in Figma. You see every screen and ask for changes before I write any code."),
         ("Consulting", "Build",
-         "I build it, usually in WordPress and Elementor, with whatever forms or payments you need, and I keep checking it on my phone as I go."),
+         "This is where the pretty pictures get a pulse. I turn approved designs into fast, functional websites, connecting the clicks, forms, payments, and little details that make everything work. And yes, I obsess over how it looks and feels on your phone too."),
         ("Design", "Launch",
          "Once it’s live I set up analytics and show your team how to update things. If anything breaks after that, message me."),
     ]
