@@ -1,7 +1,8 @@
 """Public CV as a PDF for the portfolio's Download CV buttons.
 
-Content is the updated CV draft (Claude Docs, rev 17) with every [Confirm] gap either left out or worded the way
-the portfolio site already describes it; no dashes, in line with the site's copy rules. The page uses the site's
+Content is the version tailored on 2026-10-29 for WordPress development and client support work (hosting, SEO and
+sign up form work as Emmanuel confirmed it), with the job ad's training line made general; no dashes, in line with
+the site's copy rules. The page uses the site's
 type (Glancyr Neue for headings, Roboto Flex for text) and its coral accent, on white so it prints well.
 
 Usage: python3 -I make_cv.py  (writes ../portimg/Emmanuel-Nortey-CV.pdf)
@@ -27,46 +28,54 @@ PROJECTS = [  # (name, address, what it is, built with, my part)
 
 JOBS = [  # (role, place, dates, points)
     ("WordPress developer", "Theme Wire, Ghana", "01/2026 to now", [
-        "Build websites with WordPress.",
-        "Build custom templates and themes, and write plugins when a site needs something WordPress doesn't do on its own.",
-        "Maintain the websites after they go live.",
+        "Build new WordPress sites, custom themes and templates, and write plugins when a client needs something no existing plugin does.",
+        "Look after live client sites: updates, plugin changes and fixes when something stops working.",
     ]),
-    ("Freelance web and WordPress developer", "Accra and remote", "Current", [
-        "Built eight live websites in WordPress, Elementor and WooCommerce for NGOs, consultancies, health and service businesses in Ghana and the UK.",
-        "Made Pagecast, a Chrome extension and Figma plugin that turns web pages into Figma layers you can edit.",
-        "Design every site in Figma before building it, and look after sites once they are live.",
+    ("Freelance WordPress developer", "Accra and remote", "Current", [
+        "Built eight live sites in WordPress, Elementor and WooCommerce for NGOs, consultancies and service businesses in Ghana and the UK, "
+        "including an online shop with checkout and a meal ordering site that takes Paystack payments.",
+        "Run every project on my own, from the first call with the client and the Figma designs through the build, the launch, "
+        "and showing their team how to update the site.",
+        "Set up hosting, domains and SSL for client sites, move sites to new hosts when they outgrow the old one, "
+        "and look after backups, DNS and business email accounts.",
+        "Before launch I set up Yoast or Rank Math, connect the site to Google Search Console and Analytics, and compress images "
+        "and add caching so pages load quickly. Where a client sends newsletters, I connect the sign up forms to their email list.",
+        "Still support several clients after launch, such as the Mawuena Datsa Foundation and Hadassah Foundation, whose sites I maintain.",
     ]),
     ("Technician", "KA Technologies, Accra", "02/2022 to now", [
-        "Assemble and repair laptops, and track down hardware and software faults.",
-        "Support operating systems, applications and networks.",
-        "Run diagnostics and performance tuning; machines run about 20% faster afterwards, with fewer failures.",
+        "Find and fix hardware and software faults, and support operating systems, applications and networks.",
+        "Run diagnostics and performance tuning; machines usually come back about 20% faster, with fewer failures.",
     ]),
     ("IT support and technical services (national service)", "University of Ghana, Legon", "09/2020 to 11/2021", [
-        "Handled IT support from network connections and system crashes to printers.",
-        "Set up and tuned hardware, peripherals and software, and advised staff on the technology they used.",
-        "Ran the ICT lab, supporting over 500 students and staff.",
+        "Ran the ICT lab and was the person over 500 students and staff came to when their tech broke, "
+        "from network connections and system crashes to printers.",
+        "Set up hardware, peripherals and software, and explained fixes in plain language so people could keep working.",
     ]),
     ("Operations manager", "Jumeni Technologies, East Legon", "07/2021 to 08/2021", [
-        "Ran daily operations, logistics and service delivery.",
-        "Led customer onboarding, which kept more clients coming back.",
+        "Ran daily operations and onboarded new customers, which kept more of them coming back.",
         "Designed the company's marketing material and graphics.",
     ]),
     ("Intern, graphic design and web development", "MEST Africa (Jumeni Technologies), East Legon", "06/2019 to 07/2019", [
-        "Learned graphic design and web development with HTML, CSS, JavaScript and WordPress on real projects.",
-        "Helped maintain websites, making them faster and easier to use.",
+        "Learned web development with HTML, CSS, JavaScript and WordPress on real projects, and helped make existing sites faster.",
     ]),
     ("IT support specialist", "Christ Cares", "", [
-        "Diagnosed and fixed software and hardware problems.",
-        "Did routine maintenance to prevent downtime.",
+        "Diagnosed software and hardware problems and did routine maintenance to prevent downtime.",
     ]),
 ]
 
+SHOWN = ("Netra Technologies GH", "The Weekend Chef", "World Movers Team", "Strategic &amp; Agile", "Agorivia",
+         "Mawuena Datsa Foundation")  # the projects the CV lists
+
 SKILLS = [
-    ("WordPress", "WordPress, Elementor, WooCommerce, custom themes, templates and plugins, Paystack payments, speed, security, maintenance"),
-    ("Web development", "HTML, CSS, JavaScript, Next.js, responsive layouts"),
-    ("Extensions and plugins", "Chrome extensions (Manifest V3), Figma plugins"),
-    ("Design", "Figma, wireframes, user flows, Adobe Photoshop, Illustrator, Canva"),
-    ("IT support", "Hardware and software troubleshooting, helpdesk, network setup, security, data protection"),
+    ("WordPress", "New builds, Elementor, WooCommerce, custom themes and templates, writing plugins, setting up and updating plugins, "
+                  "Paystack payments, speed, security, maintenance"),
+    ("Client support", "Helpdesk and walk in support, onboarding new clients, explaining problems without jargon, "
+                       "teaching client teams to update their own sites"),
+    ("Hosting and SEO", "Hosting and domain setup, SSL, site migrations, backups, DNS and business email, Yoast, Rank Math, "
+                        "Google Search Console and Analytics, image compression, caching"),
+    ("Systems and networks", "Hardware and software troubleshooting, operating systems, network setup, security and data protection"),
+    ("Web development", "HTML, CSS, JavaScript, Next.js, responsive layouts, Chrome extensions, Figma plugins"),
+    ("Design and marketing", "Figma, Adobe Photoshop, Illustrator, Canva, marketing graphics, newsletter sign up forms linked to email lists"),
 ]
 
 CERTS = [
@@ -118,7 +127,7 @@ table.certs td.name { width: 40%%; }
 def html():
     projects = "".join(
         "<tr><td class='name'>%s%s</td><td>%s</td><td class='with'>%s</td><td class='part'>%s</td></tr>"
-        % (name, "<small>%s</small>" % site if site else "", what, built, part) for name, site, what, built, part in PROJECTS)
+        % (name, "<small>%s</small>" % site if site else "", what, built, part) for name, site, what, built, part in PROJECTS if name in SHOWN)
     jobs = "".join(
         "<div class='job'><div class='job-head'><div><h3>%s</h3><span class='where'>%s</span></div><span class='when'>%s</span></div>"
         "<ul>%s</ul></div>" % (role, where, when, "".join("<li>%s</li>" % p for p in points)) for role, where, when, points in JOBS)
@@ -129,34 +138,29 @@ def html():
 <style>%s</style></head><body>
 <header>
   <h1>Emmanuel Nii Yeboah Nortey<span>.</span></h1>
-  <p class="role">Web developer &middot; WordPress developer &middot; UI/UX designer &middot; IT support</p>
-  <p class="contact"><a href="mailto:enortey96@gmail.com">enortey96@gmail.com</a> &middot; +233 24 633 7881 &middot; North Kaneshie, Accra, Ghana</p>
+  <p class="role">WordPress developer &middot; Client and technical support</p>
+  <p class="contact"><a href="mailto:enortey96@gmail.com">enortey96@gmail.com</a> &middot; +233 24 633 7881 &middot; North Kaneshie, Accra, Ghana &middot; <a href="https://manuelnort.github.io/Portfolio-/">manuelnort.github.io/Portfolio-</a></p>
 </header>
 <h2>Profile</h2>
-<p class="profile">I'm a WordPress developer at Theme Wire, and I build sites for my own clients too, in WordPress, Elementor and
-WooCommerce or in code with HTML, CSS, JavaScript and Next.js. So far that's eight live sites for NGOs, consultancies, health
-and service businesses and an online store, in Ghana and the UK.
-I design everything in Figma first, and years of IT support mean I care about what happens after launch: sites that stay fast,
-secure and easy for clients to update. I also made Pagecast, a Chrome extension and Figma plugin that turns any website into
-Figma layers.</p>
-<h2>Product</h2>
-<div class="product"><div class="job-head"><h3 style="font-size:10.2pt">Pagecast</h3><span class="when">Version 2.2</span></div>
-<span class="where" style="color:#5d5f66">Chrome extension and Figma plugin</span>
-<ul><li>Captures a whole web page at desktop, tablet and phone sizes and brings it into Figma as frames, text, images and vectors you can edit.</li>
-<li>Built with JavaScript, Chrome Manifest V3 and the Figma Plugin API. Pages are processed and stored only on the user's own device.</li></ul></div>
-<h2>Selected web projects</h2>
-<table>%s</table>
+<p class="profile">I'm a WordPress developer at Theme Wire, where I build sites, custom themes and templates and write plugins
+when a site needs one. Before that I spent years in IT support, the person students, staff and customers came to when something
+stopped working, so talking a client through a problem is as normal to me as fixing it. On my own I've built eight live client
+sites and run each one from the first call to launch, and I still look after several of them. I'd like a job where the
+development and the client work sit together. I already handle hosting, migrations and the SEO setup on my own projects.
+Email campaigns are the part I've done least, and the next thing I want to get good at.</p>
 <h2>Experience</h2>
 %s
+<div style="break-inside: avoid"><h2>Selected WordPress work</h2>
+<table>%s</table></div>
+<h2>Skills</h2>
+<div class="grid2">%s</div>
 <h2>Education</h2>
 <div class="job"><div class="job-head"><div><h3>BSc Information Technology</h3><span class="where">Kwame Nkrumah University of Science and Technology (KNUST)</span></div><span class="when">10/2022</span></div></div>
 <div class="job"><div class="job-head"><div><h3>Diploma in Information Technology</h3><span class="where">Kwame Nkrumah University of Science and Technology (KNUST)</span></div><span class="when">09/2020</span></div></div>
-<h2>Skills</h2>
-<div class="grid2">%s</div>
 <h2>Certificates</h2>
 <div class="grid2">%s</div>
 <p class="foot">References available on request.</p>
-</body></html>""" % (CSS % FONT, projects, jobs, skills, certs)
+</body></html>""" % (CSS % FONT, jobs, projects, skills, certs)
 
 
 if __name__ == "__main__":
