@@ -30,6 +30,7 @@ MEDIA = {
         "card": ("cover.jpg", .5, .3),
     },
     # Works cards for the other projects, from photos on their own sites (harvest.py)
+    "afcas": {"card": ("hero.webp", .45, .55), "hover": ("site-01.webp", .3, .5)},
     "geoben": {"card": ("site-01.jpg", .5, .45), "hover": ("site-03.jpg", .5, .5)},
     "weekendchef": {"card": ("site-01.jpg", .5, .5)},
     "mawuena": {"card": ("site-03.jpg", .5, .5), "hover": ("site-11.jpg", .5, .5)},
