@@ -936,6 +936,7 @@ FILTERS = [("web", "Websites"), ("ecommerce", "Online shops"), ("nonprofit", "No
 # (title, category label, link, logo file or monogram, glow, second glow, filter slugs, cover image for design pieces)
 GRID = [
     ("AFCAS", "Government · Fire safety", "https://afcas.com.gh/", "afcas-white.png", "#e40000", "#7a0d0d", ["web"], None),
+    ("CG Dispo", "Laundry &amp; cleaning", "https://cgdispo.com/", "cgdispo.png", "#fe7301", "#010181", ["web"], None),
     ("Geoben Height", "Hospitality", "https://geobenheight.com/", "GH", "#c99a2e", "#5a420d", ["web"], None),
     ("Netra Technologies GH", "Technology", PROJECTS["netra"][1], "netra.png", "#2f6fd6", "#e8573c", ["web", "ecommerce"], None),
     ("The Weekend Chef", "Food &amp; hospitality", PROJECTS["weekendchef"][1], "weekendchef.png", "#e0612b", "#8f1218", ["web", "ecommerce"], None),
@@ -959,6 +960,7 @@ GRID = [
 # A hover photo is used when projects.py made one.
 PHOTO_CARDS = {
     "AFCAS": ("afcas", "afcas-white.png", "The Ghana National Fire Service’s website for fire certificates.", "center", "white"),
+    "CG Dispo": ("cgdispo", "cgdispo.png", "Same day laundry and home cleaning in Accra, booked with a call or a click.", "corner", "badge"),
     "Geoben Height": ("geoben", "Geoben Height", "Apartments and event spaces in Accra. Guests can look around and book online.", "center", "text"),
     "Netra Technologies GH": ("netra", "netra.png", "An IT company in Ghana with an online shop that takes cedis.", "center", "invert"),
     "Pagecast": ("pagecast", "pagecast.png", "My own Chrome extension and Figma plugin. Point it at a website and get Figma layers you can edit.", "corner", "badge"),
