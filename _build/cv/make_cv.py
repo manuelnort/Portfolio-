@@ -1,5 +1,8 @@
 """Public CV as a PDF for the portfolio's Download CV buttons.
 
+NOT IN USE since 2026-11-19: the site ships Emmanuel's own resume PDF as he sent it (portimg/Emmanuel-Nortey-CV.pdf).
+Running this script overwrites that file, so only run it if he asks for a generated CV again.
+
 Content is Emmanuel's own resume of 2026-11-19 (Downloads, "Emmanuel Nii Yeboah Nortey Resume.pdf"), with its typos
 fixed and no dashes, in line with the site's copy rules. The project table stays in PROJECTS for the tailored CV in
 ~/Desktop/ego/cv-tailored, but this page no longer lists it. The page uses the site's
